@@ -1,0 +1,82 @@
+import random
+import yfinance as yf
+import spacy
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+
+# Load SpaCy NLP model for named entity recognition (NER)
+nlp = spacy.load("en_core_web_sm")
+
+# Function to fetch stock summary from Yahoo Finance
+def fetch_yahoo_finance_summary(ticker):
+    stock = yf.Ticker(ticker)
+    info = stock.info
+    summary = info.get('longBusinessSummary', '')
+    if not summary:
+        return "No summary available for this stock."
+    return summary
+
+# Function to generate random financial data
+def generate_random_financial_data():
+    tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META']
+    prices = [150.25, 302.15, 2800.60, 3345.00, 895.50, 365.20]
+    sedol = [f"{random.randint(1000000, 9999999)}" for _ in range(6)]
+    cusip = [f"{random.randint(10000000, 99999999)}" for _ in range(6)]
+    isin = [f"US{random.randint(1000000000, 9999999999)}" for _ in range(6)]
+
+    ticker = random.choice(tickers)
+    price = random.choice(prices)
+    trade_sedol = random.choice(sedol)
+    trade_cusip = random.choice(cusip)
+    trade_isin = random.choice(isin)
+
+    return ticker, price, trade_sedol, trade_cusip, trade_isin
+
+# Load Llama 3 Omni FinAI model and tokenizer
+model_name = "Llama-3-Omni/FinAI"  # Replace with actual model name if different
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name)
+
+# Create a pipeline for text generation
+fin_ai_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer)
+
+# Function to generate a dynamic question based on the summary and extracted entities
+def generate_dynamic_question(summary):
+    # Analyze the summary using SpaCy NLP
+    doc = nlp(summary)
+    
+    # Extract named entities (organizations, products, market-related terms)
+    entities = [ent.text for ent in doc.ents]
+    
+    # If no entities are found, create a generic question
+    if not entities:
+        return "What are the latest financial updates for this stock?"
+
+    # If we have entities, generate a question based on them
+    question = f"Based on the summary of {', '.join(entities)}, what are the key financial updates?"
+
+    return question
+
+# Generate random financial data
+ticker, price, trade_sedol, trade_cusip, trade_isin = generate_random_financial_data()
+
+# Fetch the Yahoo Finance summary for the selected ticker
+summary = fetch_yahoo_finance_summary(ticker)
+
+# If no summary available, skip question generation
+if summary == "No summary available for this stock.":
+    print(summary)
+else:
+    # Generate a dynamic question based on the summary and entities
+    question = generate_dynamic_question(summary)
+
+    # Generate the answer using Llama 3 Omni FinAI
+    answer = fin_ai_pipeline(question, max_length=150, do_sample=True, temperature=0.7)
+
+    # Append the random trade details to the generated answer
+    generated_answer = answer[0]['generated_text']
+    generated_answer += f"\n\nTrade Details:\nTicker: {ticker}\nPrice: ${price}\n" \
+                        f"SEDOL: {trade_sedol}\nCUSIP: {trade_cusip}\nISIN: {trade_isin}"
+
+    # Output the final response
+    print(f"Q: {question}")
+    print(f"A: {generated_answer}")
