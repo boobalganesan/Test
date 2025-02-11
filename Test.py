@@ -1,6 +1,16 @@
-import yfinance as yf
-from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import random
+import yfinance as yf
+from faker import Faker
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+
+# Initialize Faker for random name and email generation
+fake = Faker()
+
+# Load model and tokenizer (for generating financial summaries, etc.)
+model_name = "Ichabchiu/Llama-3.1-Omni-FinAI-8B"  # Example model name
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name)
+fin_gpt_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer)
 
 # Function to fetch stock summary from Yahoo Finance
 def fetch_yahoo_finance_summary(ticker):
@@ -9,63 +19,55 @@ def fetch_yahoo_finance_summary(ticker):
     summary = info.get('longBusinessSummary', '')
     return summary
 
-# Function to generate random financial data (tickers, prices, trade details)
+# Function to generate random email sender and receiver
+def generate_random_email():
+    sender_name = fake.name()
+    receiver_name = fake.name()
+    sender_email = f"{sender_name.split()[0].lower()}.{sender_name.split()[1].lower()}@{random.choice(['gmail.com', 'yahoo.com', 'company.com'])}"
+    receiver_email = f"{receiver_name.split()[0].lower()}.{receiver_name.split()[1].lower()}@{random.choice(['gmail.com', 'yahoo.com', 'company.com'])}"
+    return sender_email, receiver_email
+
+# Function to generate a random subject
+def generate_random_subject():
+    subjects = [
+        "Financial Update Report",
+        "Quarterly Earnings Call Summary",
+        "Stock Performance Overview",
+        "Market Update and Insights",
+        "Important Investment Information"
+    ]
+    return random.choice(subjects)
+
+# Function to generate random financial data
 def generate_random_financial_data():
     tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META']
-    prices = [150.25, 302.15, 2800.60, 3345.00, 895.50, 365.20]
-    sedol = [f"{random.randint(1000000, 9999999)}" for _ in range(6)]
-    cusip = [f"{random.randint(10000000, 99999999)}" for _ in range(6)]
-    isin = [f"US{random.randint(1000000000, 9999999999)}" for _ in range(6)]
-
     ticker = random.choice(tickers)
-    price = random.choice(prices)
-    trade_sedol = random.choice(sedol)
-    trade_cusip = random.choice(cusip)
-    trade_isin = random.choice(isin)
+    return ticker
 
-    return ticker, price, trade_sedol, trade_cusip, trade_isin
+# Function to generate an email body using a financial summary
+def generate_email_body(summary):
+    context_for_email = f"Based on the following financial summary, please generate an email: {summary}"
+    generated_email_body = fin_gpt_pipeline(context_for_email, max_length=150, do_sample=True, temperature=0.7)
+    return generated_email_body[0]['generated_text']
 
-# Load FinanceGPT model and tokenizer
-model_name = "AI4Finance/FinanceGPT"  # Replace with actual model name if different
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name)
-
-# Create a pipeline for text generation (question generation and answering)
-fin_gpt_pipeline = pipeline("text-generation", model=model, tokenizer=tokenizer)
-
-# Function to generate a dynamic question based on the summary
-def generate_dynamic_question(summary):
-    # Prepare the prompt for the model to generate a relevant question.
-    context_for_question = f"Based on the following financial summary, generate a relevant finance-related question: {summary}"
-
-    # Generate the question using FinanceGPT model
-    generated_question = fin_gpt_pipeline(context_for_question, max_length=50, do_sample=True, temperature=0.7)
-    
-    return generated_question[0]['generated_text']
-
-# Function to generate an answer to the question
-def generate_answer(question):
-    # Generate the answer using FinanceGPT model
-    generated_answer = fin_gpt_pipeline(question, max_length=150, do_sample=True, temperature=0.7)
-    
-    return generated_answer[0]['generated_text']
-
-# Generate random financial data
-ticker, price, trade_sedol, trade_cusip, trade_isin = generate_random_financial_data()
+# Example usage:
+# Generate random financial data (stock ticker)
+ticker = generate_random_financial_data()
 
 # Fetch the Yahoo Finance summary for the selected ticker
 summary = fetch_yahoo_finance_summary(ticker)
 
-# Generate a dynamic question based on the summary
-question = generate_dynamic_question(summary)
+# Generate a random sender and receiver email addresses
+sender_email, receiver_email = generate_random_email()
 
-# Generate the answer to the question
-answer = generate_answer(question)
+# Generate the email subject
+subject = generate_random_subject()
 
-# Append the random trade details to the generated answer
-generated_answer = answer + f"\n\nTrade Details:\nTicker: {ticker}\nPrice: ${price}\n" \
-                            f"SEDOL: {trade_sedol}\nCUSIP: {trade_cusip}\nISIN: {trade_isin}"
+# Generate the email body using the financial summary
+email_body = generate_email_body(summary)
 
-# Output the final response
-print(f"Q: {question}")
-print(f"A: {generated_answer}")
+# Format the email
+email = f"From: {sender_email}\nTo: {receiver_email}\nSubject: {subject}\n\n{email_body}\n\nBest regards,\n{sender_email}"
+
+# Output the generated email
+print(email)
