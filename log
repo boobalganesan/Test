@@ -1,7 +1,17 @@
 context_for_question = f"""
-Analyze the following financial summary and generate a relevant finance-related question:
-Summary: {summary}
+You are a financial analyst. Using the given financial entities, generate a meaningful question about the company's financial performance.
 
-Ensure that the question is specific, clear, and related to key financial aspects such as revenue, earnings, stock performance, market impact, or company growth.
-Avoid repeating phrases from the summary excessively. The question should be natural and meaningful.
+Entities: {', '.join(entities)}
+
+Ensure that the question is:
+- Relevant to finance (e.g., earnings, stock performance, market trends, investments).
+- Concise, clear, and professional.
+- Not repetitive or generic.
+
+Example Question Types:
+- "How has {entities[0]}'s revenue changed in the past year?"
+- "What factors are driving the stock performance of {entities[0]}?"
+- "How does {entities[0]}'s market position compare to competitors?"
+
+Now, generate a unique question based on the given entities.
 """
