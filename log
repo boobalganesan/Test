@@ -1,2 +1,7 @@
-Q: Based on the summary of Microsoft Corporation, The Productivity and Business Processes, SharePoint, Microsoft Teams, Microsoft, Microsoft, Microsoft, Office, LinkedIn, Dynamics 365, ERP, CRM, ERP, CRM, SQL, GitHub, The More Personal Computing, Windows, Windows, Windows, HoloLens, Xbox, third, Xbox, third, Bing, Microsoft News, Edge, third, 1975, Redmond, Washington, what are the key financial updates?
-A: Based on the summary of Microsoft Corporation, The Productivity and Business Processes, SharePoint, Microsoft Teams, Microsoft, Microsoft, Microsoft, Office, LinkedIn, Dynamics 365, ERP, CRM, ERP, CRM, SQL, GitHub, The More Personal Computing, Windows, Windows, Windows, HoloLens, Xbox, third, Xbox, third, Bing, Microsoft News, Edge, third, 1975, Redmond, Washington, what are the key financial updates? Microsoft announced that it was the first to introduce a new form of artificial intelligence called AI, in 1975. The new form of AI is based on machine learning and deep learning, which means that Microsoft has 1.3 million researchers and developers working on it, and
+context_for_question = f"""
+Analyze the following financial summary and generate a relevant finance-related question:
+Summary: {summary}
+
+Ensure that the question is specific, clear, and related to key financial aspects such as revenue, earnings, stock performance, market impact, or company growth.
+Avoid repeating phrases from the summary excessively. The question should be natural and meaningful.
+"""
