@@ -1,17 +1,44 @@
-context_for_question = f"""
-You are a financial analyst. Using the given financial entities, generate a meaningful question about the company's financial performance.
+import faiss
+from transformers import pipeline
+from sentence_transformers import SentenceTransformer
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.vectorstores import FAISS
+from langchain.document_loaders import TextLoader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.chains import RetrievalQA
+from langchain.memory import ConversationBufferMemory
 
-Entities: {', '.join(entities)}
+# Load embedding model (FinBERT)
+embedding_model = SentenceTransformer("ProsusAI/finbert")
 
-Ensure that the question is:
-- Relevant to finance (e.g., earnings, stock performance, market trends, investments).
-- Concise, clear, and professional.
-- Not repetitive or generic.
+# Load LLaMA model (Replace with your own model)
+llama_model = "your_llama_finetuned_model"  
+llama_pipeline = pipeline("text-generation", model=llama_model, max_length=512)
 
-Example Question Types:
-- "How has {entities[0]}'s revenue changed in the past year?"
-- "What factors are driving the stock performance of {entities[0]}?"
-- "How does {entities[0]}'s market position compare to competitors?"
+# Load and process documents
+loader = TextLoader("finance_docs.txt")  # Replace with your finance text file
+documents = loader.load()
 
-Now, generate a unique question based on the given entities.
-"""
+# Split text into chunks
+text_splitter = CharacterTextSplitter(chunk_size=512, chunk_overlap=50)
+docs = text_splitter.split_documents(documents)
+
+# Create FAISS index
+faiss_index = FAISS.from_documents(docs, HuggingFaceEmbeddings(model_name="ProsusAI/finbert"))
+
+# Setup memory for chat history
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
+# Create the RAG QA Chain
+qa_chain = RetrievalQA.from_chain_type(llm=llama_pipeline, retriever=faiss_index.as_retriever())
+
+# Chat Loop
+print("Chatbot is ready! Type 'exit' to stop.\n")
+while True:
+    user_input = input("You: ")
+    if user_input.lower() == "exit":
+        print("Goodbye!")
+        break
+    
+    response = qa_chain.run(user_input)
+    print("Bot:", response)
