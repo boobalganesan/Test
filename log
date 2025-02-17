@@ -1,44 +1,19 @@
-import faiss
-from transformers import pipeline
-from sentence_transformers import SentenceTransformer
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from langchain.document_loaders import TextLoader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.chains import RetrievalQA
-from langchain.memory import ConversationBufferMemory
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
 
-# Load embedding model (FinBERT)
-embedding_model = SentenceTransformer("ProsusAI/finbert")
+# Replace this with the actual model name from Hugging Face
+model_name = "your-gpt-3.5-turbo-transformer-model"
 
-# Load LLaMA model (Replace with your own model)
-llama_model = "your_llama_finetuned_model"  
-llama_pipeline = pipeline("text-generation", model=llama_model, max_length=512)
+# Load the tokenizer and model
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
 
-# Load and process documents
-loader = TextLoader("finance_docs.txt")  # Replace with your finance text file
-documents = loader.load()
+# Prepare input text
+prompt = "What is the capital of France?"
+inputs = tokenizer(prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
 
-# Split text into chunks
-text_splitter = CharacterTextSplitter(chunk_size=512, chunk_overlap=50)
-docs = text_splitter.split_documents(documents)
+# Generate text
+outputs = model.generate(**inputs, max_length=100)
+generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-# Create FAISS index
-faiss_index = FAISS.from_documents(docs, HuggingFaceEmbeddings(model_name="ProsusAI/finbert"))
-
-# Setup memory for chat history
-memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-
-# Create the RAG QA Chain
-qa_chain = RetrievalQA.from_chain_type(llm=llama_pipeline, retriever=faiss_index.as_retriever())
-
-# Chat Loop
-print("Chatbot is ready! Type 'exit' to stop.\n")
-while True:
-    user_input = input("You: ")
-    if user_input.lower() == "exit":
-        print("Goodbye!")
-        break
-    
-    response = qa_chain.run(user_input)
-    print("Bot:", response)
+print(generated_text)
