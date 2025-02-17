@@ -1,19 +1,31 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
-import torch
+Miley: Good morning, everyone. Today, we'll be examining SpaceMobile, Midland, Texas, AST SpaceMobile, Inc., and the stocks of two companies mentioned in the news. First up, SpaceMobile.
 
-# Replace this with the actual model name from Hugging Face
-model_name = "your-gpt-3.5-turbo-transformer-model"
+John: SpaceMobile is a telecommunications company that operates in SpaceMobile's Galaxy-10 satellite, which was launched in 2017. The company provides satellite-based data and voice services for commercial and government entities in the Middle East and Africa.
 
-# Load the tokenizer and model
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
+Jacob: According to the news, the company reported a net loss of $23.8 million, or 42 cents per diluted share, for the second quarter of 2018. Revenue for the period was $1.05 million, a 138% increase from the same period last year.
 
-# Prepare input text
-prompt = "What is the capital of France?"
-inputs = tokenizer(prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
+Miley: So, SpaceMobile reported a net loss of $23.8 million in the second quarter of 2018. This is an unbelievable increase from last year's net loss of $1.3 million. Does this point to any red flags for investors?
 
-# Generate text
-outputs = model.generate(**inputs, max_length=100)
-generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+John: SpaceMobile is a relatively new company—it was founded in 2013. The news may indicate their reliability on the market for now.
 
-print(generated_text)
+Jacob: Yes, SpaceMobile's growth in revenue compared to last year's second quarter is impressive, but it's still early in the company's lifecycle. Let's see if their financials improve in the third quarter.
+
+Miley: That's right. We'll be looking at AST SpaceMobile, Inc. From Texas, AST SpaceMobile, Inc. Is the publicly traded unit of AST SpaceMobile, Inc. A wholly owned subsidiary of a privately held company AST SpaceMobile, Inc. Incorporated was incorporated in Texas in 1988.
+
+John: According to their SEC filings, AST SpaceMobile, Inc. A publicly traded subsidiary of AST SpaceMobile, Inc. The company raised $2.25 million in a stock offering in October 2017. The stock ended up trading at a value of 1.8 times its book value.
+
+Jacob: That compares to Midland, Texas-based AST SpaceMobile, Inc. Midland-based AST SpaceMobile, Inc. Is a satellite telecommunications and information services company focused on providing broadband and satellite communications services to commercial and Government customers. The company's stock traded at a value of 0.1 times its book value.
+
+Miley: Let's now delve into AST SpaceMobile's financials. According to the 2017 financial statement, the company incurred a loss of $14.3 million versus a profit of $12.9 million in 2016. Their EBITDA was $5.8 million, and their net debt was $8.7 million.
+
+John: According to the 2017 SEC filings, AST SpaceMobile, Inc. Raised $2 million in a follow-on offering in October 2017. This represents a 136% increase in the company's book value.
+
+Jacob: These are impressive numbers for AST SpaceMobile, Inc. Compared to its peers, the company's financials suggest a low-risk investment. Let's move onto Midland-based AST SpaceMobile.
+
+Miley: Let's now turn to AST SpaceMobile, Inc.'s financials. They had a net loss of $7.9 million for the second quarter, which was a decrease from the 2016 second-quarter loss of $22.1 million. Their EBITDA was $5.2 million, and their net debt was $7.5 million.
+
+John: According to their 2017 SEC filings, AST SpaceMobile, Inc. Had a $1.8 million net loss in the second quarter of 2017 compared to a net loss of $41.2 million in the same period in 2016. The company also raised $17 million in a secondary public offering in June 2017.
+
+Jacob: AST SpaceMobile, Inc.'s financials indicate that the company has been able to reduce its losses, but it's still a risky investment.
+
+Miley: That's right. In conclusion, we'll be watching Midland-based AST SpaceMobile. Midland-based AST SpaceMobile's financials show a decrease in losses during the first half of 2018, and a higher return on equity in 2018 compared to last year. However, we'll also be watching closely for any updates from AST SpaceMobile in the third quarter of this year.
